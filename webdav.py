@@ -10,6 +10,7 @@ class webdav(object):
 		self.index = 0
 		self.limit = 50
 		self.files = [[[None], [None], [None], [None]]] * self.limit # id + type + name + url
+		self.inputi = None
 		self.referer = "https://www.aliyundrive.com/"
 		self.content_type = "application/json; charset=UTF-8"
 		self.user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.48 Safari/537.36"
@@ -45,33 +46,41 @@ class webdav(object):
 		self.show_file_list(file_list)
 		# into_folder = input("Please enter the name of folder, or index number(start from 0):")
 		# into_folder_index = input("\33[1mPlease enter the index number of folder/files(start from 0):\33[0m")
-		index = int(input("\33[1mPlease enter the index number of folder/files(start from 0. enter -1 to return root):\33[0m"))
-		self.select_index(index)
-		if index < 0:
-			file_list = self.get_file_list(
-				"https://api.aliyundrive.com/v2/file/list",
-				"root",
-				self.user_drive_id,
-				self.user_authorization
-			)
-			self.show_file_list(file_list)
-		self.select_index(index)
-		print("Done.")
-	
-	def select_index(self, index):
-		while index >= 0 and index <= 50:
-			if self.files[index][1] == "folder":
+		self.get_user_input()
+		while self.inputi <= 50:
+			if self.inputi > (self.index - 1):
+				print("\33[1;31mError: \33[0mMemory overflow.")
+				break
+			if self.inputi < 0:
 				into_folder = self.get_file_list(
 					"https://api.aliyundrive.com/v2/file/list",
-					self.files[index][0],
+					"root",
 					self.user_drive_id,
 					self.user_authorization
 				)
 				self.show_file_list(into_folder)
-			elif self.files[index][1] == "file":
-				print("File name:", self.files[index][2])
-				print("Download url:", self.files[index][3])
-			index = int(input("\33[1mPlease enter the index number of folder/files(start from 0. enter -1 to return root):\33[0m"))
+				self.get_user_input()
+				continue
+			if self.files[self.inputi][1] == "folder":
+				into_folder = self.get_file_list(
+					"https://api.aliyundrive.com/v2/file/list",
+					self.files[self.inputi][0],
+					self.user_drive_id,
+					self.user_authorization
+				)
+				self.show_file_list(into_folder)
+			elif self.files[self.inputi][1] == "file":
+				print("File name:", self.files[self.inputi][2])
+				print("Download url:", self.files[self.inputi][3])
+			self.get_user_input()
+		print("Done.")
+
+	def get_user_input(self):
+		try:
+			self.inputi = int(input("\33[1mPlease enter the index number of folder/files(start from 0. enter -1 to return root):\33[0m"))
+		except:
+			print("Bye~")
+			quit()
 
 	def show_file_list(self, folder_id):
 		self.folder_count = self.file_count = self.index = 0
