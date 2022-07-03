@@ -2,6 +2,7 @@
 # Version 2.0
 import requests
 import json
+import os
 
 class webdav(object):
 	def __init__(self):
@@ -26,10 +27,10 @@ class webdav(object):
 			print("Enter error.")
 			quit()
 		self.user_authorization = json.loads(self.get_access_token(
-			"https://websv.aliyundrive.com/token/refresh",
+			"https://api.aliyundrive.com/token/refresh",
 			self.user_refresh_token
 		))["access_token"]
-		# print(json.loads(self.user_access_token)["access_token"])
+		# print(self.user_authorization)
 		user_info = json.loads(self.get_user_info(
 			"https://api.aliyundrive.com/v2/user/get",
 			{},
@@ -73,6 +74,7 @@ class webdav(object):
 			elif self.files[self.inputi][1] == "file":
 				print("File name:", self.files[self.inputi][2])
 				print("Download url:", self.files[self.inputi][3])
+				os.system("am start -n idm.internet.download.manager.plus/idm.internet.download.manager.Downloader -d " + "\"" + str(self.files[self.inputi][3]) + "\"")
 			self.get_user_input()
 		print("Done.")
 
