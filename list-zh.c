@@ -14,7 +14,7 @@
 #define REFERER "https://www.aliyundrive.com/"
 #define CONNECTION "Close"
 #define CONTENT_TYPE "application/json; charset: UTF-8"
-#define TOKEN "540c6c05a787425d8b85b6713f7dfedc"
+#define TOKEN NULL
 #define USER_AGENT "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.48 Safari/537.36"
 #define RESPONSE_SIZE 5000
 #define PORT 80
@@ -46,6 +46,11 @@ int main(int argc, char **argv) {
 		strcat(strcat(strcat(request_body, "\""), argv[1]), "\"}");
 	else
 		strcat(request_body, "\""TOKEN"\"}");
+	if (argc > 2)
+	{
+		fprintf(stderr, "%sToo many parameters.\n", ERRMSG);
+		exit(EXIT_FAILURE);
+	}
 
 	sprintf(msg, "%s %s HTTP/1.1\n"
 		"Host: %s\n"
