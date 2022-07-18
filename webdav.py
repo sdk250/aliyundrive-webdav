@@ -27,12 +27,12 @@ class webdav(object):
 			print("Enter error.")
 			quit()
 		self.user_authorization = json.loads(self.get_access_token(
-			"https://api.aliyundrive.com/token/refresh",
+			"http://auth.aliyundrive.com/v2/account/token",
 			self.user_refresh_token
 		))["access_token"]
-		# print(self.user_authorization)
+		
 		user_info = json.loads(self.get_user_info(
-			"https://api.aliyundrive.com/v2/user/get",
+			"http://api.aliyundrive.com/v2/user/get",
 			{},
 			self.user_authorization
 		))
@@ -40,7 +40,7 @@ class webdav(object):
 		self.user_nickname = user_info["nick_name"]
 		print("\33[1;35m", self.user_nickname, "\33[0m" + ", Hello!")
 		file_list = self.get_file_list(
-			"https://api.aliyundrive.com/v2/file/list",
+			"http://api.aliyundrive.com/v2/file/list",
 			"root",
 			self.user_drive_id,
 			self.user_authorization
@@ -124,6 +124,7 @@ class webdav(object):
 		return requests.post(
 			url = url,
 			data = json.dumps({
+				"grant_type": "refresh_token",
 				"refresh_token": str(token)
 			}),
 			headers = {
