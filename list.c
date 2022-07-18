@@ -14,7 +14,7 @@
 #define REFERER "https://www.aliyundrive.com/"
 #define CONNECTION "Close"
 #define CONTENT_TYPE "application/json; charset: UTF-8"
-#define TOKEN NULL
+#define TOKEN ""
 #define USER_AGENT "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.48 Safari/537.36"
 #define RESPONSE_SIZE 5000
 #define PORT 80
