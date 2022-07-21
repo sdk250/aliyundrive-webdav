@@ -26,21 +26,20 @@ unsigned long int fn(const char *restrict, const int, const char *restrict, cons
 char *find_key(const char *restrict, const char *restrict);
 cJSON *into(const char *restrict, const char *restrict, const char *restrict, cJSON *restrict);
 void show_file_list(const cJSON *restrict);
-int i, file_count, folder_count;
-cJSON *obj[50];
+short int i;
+cJSON *obj[50] = {NULL};
 
 int main(int argc, char **argv) {
-	char msg[400];
+	char msg[400] = {0};
 	char request_body[100] = "{\"grant_type\": \"refresh_token\", \"refresh_token\": ";
 	char *response = (char *)malloc(RESPONSE_SIZE * sizeof(char));
 	const char *access_token, *nick_name, *default_drive_id;
 	char *index = "root";
 	char *command = (char *)malloc(sizeof(char) * 1000);
 	unsigned long int recvbyte = 0;
-	long int recvb;
 	int user_input;
-	FILE *read_;
-	cJSON *json;
+	FILE *read_ = NULL;
+	cJSON *json = NULL;
 
 	if (argc == 2)
 		strcat(strcat(strcat(request_body, "\""), argv[1]), "\"}");
@@ -157,7 +156,6 @@ unsigned long int fn(const char *restrict addr, const int port, const char *rest
 	struct sockaddr_in addr_;
 	struct hostent *host;
 	char buffer[80000];
-	char *s = NULL;
 	unsigned long int recvbyte;
 	// struct timeval timeout = {3,0};
 	long int recvb;
@@ -186,16 +184,7 @@ unsigned long int fn(const char *restrict addr, const int port, const char *rest
 		recvbyte += recvb;
 		if ((fwrite(buffer, sizeof(char), recvb, fp)) != recvb)
 			fprintf(stderr, "%sWrite data fail: %lu\n", ERRMSG, recvb);
-		/*if (recvb != BUFSIZE)
-			break;*/
 	}
-	// buffer[recvbyte] = '\0';
-	/*if ((s = strstr(buffer, "\n\n")) != NULL)
-	{
-		puts("Okk");
-		s += 9;
-	}
-	fwrite(s, sizeof(char), recvbyte, fp);*/
 	fclose(fp);
 	close(sockfd);
 	return recvbyte;
@@ -203,7 +192,8 @@ unsigned long int fn(const char *restrict addr, const int port, const char *rest
 
 char *find_key(const char *restrict source, const char *restrict key) {
 	char *value, *ch;
-	if ((value = strstr(value, key))) {
+	value = ch = NULL;
+	if ((value = strstr(source, key))) {
 		if ((ch = strchr(value, ',')))
 			*ch = '\0';
 		if ((value = strchr(value, ':')))
@@ -219,7 +209,7 @@ char *find_key(const char *restrict source, const char *restrict key) {
 }
 
 cJSON *into(const char *restrict index, const char *restrict drive_id, const char *restrict authorization, cJSON *restrict json) {
-	char response[180000], request_body[500], msg[strlen(authorization) + 5000];
+	char response[RESPONSE_SIZE * 10] = {0}, request_body[RESPONSE_SIZE / 10], msg[strlen(authorization) + RESPONSE_SIZE];
 	char *s;
 	long int recvbyte = 0;
 	FILE *read;
@@ -254,22 +244,13 @@ cJSON *into(const char *restrict index, const char *restrict drive_id, const cha
 	if ((fread(response, sizeof(char), recvbyte, read)) != recvbyte)
 		fprintf(stderr, "%sRead response fail: %lu bytes.\n", ERRMSG, recvbyte);
 	s = strchr(response, '{');
-	/*if ((d = strstr(s, "}\n")))
-		if ((d = strchr(d, '\n')))
-			*d = '\0';
-	if ((d = strchr(s, '\n')))
-		*d = '{';
-	if ((d = strchr(s, '\n')))
-		*d = '}';*/
-	/*while ((d = strchr(s, '\n')))
-		*d = '\0';*/
-	// puts(s);
 	json = cJSON_Parse(s);
 	fclose(read);
 	return json;
 }
 
 void show_file_list(const cJSON *json) {
+	short int file_count, folder_count;
 	memset(obj, 0, sizeof(cJSON));
 	file_count = folder_count = i = 0;
 	for (obj[i] = cJSON_GetArrayItem(cJSON_GetObjectItem(json, "items"), i); obj[i]->next && i < atoi(LIMIT); i++)
