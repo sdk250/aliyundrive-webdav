@@ -25,7 +25,6 @@
 unsigned long int fn(const char *restrict, const int, const char *restrict, const char *restrict);
 char *find_key(const char *restrict, const char *restrict);
 cJSON *into(const char *restrict, const char *restrict, const char *restrict, cJSON *restrict);
-void show_file_list(const cJSON *restrict);
 short int i;
 cJSON *obj[50] = {NULL};
 
@@ -116,21 +115,18 @@ int main(int argc, char **argv) {
 	memset(response, 0, sizeof(char));
 
 	json = into(index, default_drive_id, access_token, json);
-	show_file_list(json);
 	fputs(TIPS, stdout);
 	while (scanf("%d", &user_input) == 1 && user_input <= atoi(LIMIT) - 1) {
 		if (user_input > i)
 			fprintf(stderr, "%s你输入的索引大于当前目录所有文件总数: %d\n", ERRMSG, i);
 		if (user_input < 0) {
 			json = into("root", default_drive_id, access_token, json);
-			show_file_list(json);
 			fputs(TIPS, stdout);
 			continue;
 		}
 		if ((strcmp(cJSON_GetObjectItem(obj[user_input], "type")->valuestring, "folder")) == 0) {
 			index = cJSON_GetObjectItem(obj[user_input], "file_id")->valuestring;
 			json = into(index, default_drive_id, access_token, json);
-			show_file_list(json);
 		} else if ((strcmp(cJSON_GetObjectItem(obj[user_input], "type")->valuestring, "file")) == 0)
 		{
 			puts("\33[35m==\t==\t==\t==\33[0m");
@@ -245,11 +241,6 @@ cJSON *into(const char *restrict index, const char *restrict drive_id, const cha
 		fprintf(stderr, "%sRead response fail: %lu bytes.\n", ERRMSG, recvbyte);
 	s = strchr(response, '{');
 	json = cJSON_Parse(s);
-	fclose(read);
-	return json;
-}
-
-void show_file_list(const cJSON *json) {
 	short int file_count, folder_count;
 	memset(obj, 0, sizeof(cJSON));
 	file_count = folder_count = i = 0;
@@ -263,4 +254,6 @@ void show_file_list(const cJSON *json) {
 			file_count++;
 	}
 	printf("共有\33[1;33m%u 个文件夹\33[0m, 和 \33[1;34m%u 个文件\33[0m.\n", folder_count, file_count);
+	fclose(read);
+	return json;
 }
